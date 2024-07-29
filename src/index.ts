@@ -28,7 +28,7 @@ $(document).ready(function () {
       : 2;
     const itemsMobileLandscape = $(this).attr('items-mobile-landscape')
       ? parseInt($(this).attr('items-mobile-landscape'), 10)
-      : 1;
+      : 2;
     const itemsMobilePortrait = $(this).attr('items-mobile-portrait')
       ? parseInt($(this).attr('items-mobile-portrait'), 10)
       : 1;
@@ -45,14 +45,14 @@ $(document).ready(function () {
       ? parseInt($(this).attr('space-between-mobile-portrait'), 10)
       : 40;
 
-    const isLessThanRequired =
-      numberOfSlides <=
-      Math.max(itemsDesktop, itemsTablet, itemsMobileLandscape, itemsMobilePortrait);
+    const maxItems = Math.max(itemsDesktop, itemsTablet, itemsMobileLandscape, itemsMobilePortrait);
+    const shouldShowSlider = numberOfSlides > maxItems;
+
     const $controlsDiv = $(this).find('[slider-controls=true]');
     const $swiperDragWrapper = $(this).find('.swiper-drag-wrapper');
     const $swiperBulletWrapper = $(this).find('.swiper-bullet-wrapper');
 
-    if (isLessThanRequired) {
+    if (!shouldShowSlider) {
       $controlsDiv.hide();
       $swiperDragWrapper.hide();
       $swiperBulletWrapper.hide();
@@ -64,16 +64,15 @@ $(document).ready(function () {
 
     const swiper = new Swiper($swiperContainer, {
       speed: sliderDuration,
-      loop: !isLessThanRequired,
-      autoplay:
-        autoMode && !isLessThanRequired
-          ? {
-              delay: autoModeDelay,
-              pauseOnMouseEnter: pauseOnHover,
-            }
-          : false,
+      loop: true,
+      autoplay: autoMode
+        ? {
+            delay: autoModeDelay,
+            pauseOnMouseEnter: pauseOnHover,
+          }
+        : false,
       autoHeight: false,
-      centeredSlides: !isLessThanRequired,
+      centeredSlides: true,
       followFinger: true,
       freeMode: false,
       slideToClickedSlide: false,
@@ -105,15 +104,13 @@ $(document).ready(function () {
           spaceBetween: spaceBetweenDesktop,
         },
       },
-      pagination: !isLessThanRequired
-        ? {
-            el: $(this).find('.swiper-bullet-wrapper')[0],
-            bulletActiveClass: 'is-active',
-            bulletClass: 'swiper-bullet',
-            bulletElement: 'button',
-            clickable: true,
-          }
-        : false,
+      pagination: {
+        el: $(this).find('.swiper-bullet-wrapper')[0],
+        bulletActiveClass: 'is-active',
+        bulletClass: 'swiper-bullet',
+        bulletElement: 'button',
+        clickable: true,
+      },
       navigation: {
         nextEl: $(this).find('.swiper-next')[0],
         prevEl: $(this).find('.swiper-prev')[0],
