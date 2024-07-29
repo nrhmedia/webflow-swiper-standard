@@ -28,7 +28,7 @@ $(document).ready(function () {
       : 2;
     const itemsMobileLandscape = $(this).attr('items-mobile-landscape')
       ? parseInt($(this).attr('items-mobile-landscape'), 10)
-      : 2;
+      : 1;
     const itemsMobilePortrait = $(this).attr('items-mobile-portrait')
       ? parseInt($(this).attr('items-mobile-portrait'), 10)
       : 1;
@@ -45,14 +45,14 @@ $(document).ready(function () {
       ? parseInt($(this).attr('space-between-mobile-portrait'), 10)
       : 40;
 
-    const maxItems = Math.max(itemsDesktop, itemsTablet, itemsMobileLandscape, itemsMobilePortrait);
-    const shouldShowSlider = numberOfSlides > maxItems;
-
+    const isLessThanRequired =
+      numberOfSlides <=
+      Math.max(itemsDesktop, itemsTablet, itemsMobileLandscape, itemsMobilePortrait);
     const $controlsDiv = $(this).find('[slider-controls=true]');
     const $swiperDragWrapper = $(this).find('.swiper-drag-wrapper');
     const $swiperBulletWrapper = $(this).find('.swiper-bullet-wrapper');
 
-    if (!shouldShowSlider) {
+    if (isLessThanRequired) {
       $controlsDiv.hide();
       $swiperDragWrapper.hide();
       $swiperBulletWrapper.hide();
@@ -62,17 +62,27 @@ $(document).ready(function () {
     $swiperDragWrapper.show();
     $swiperBulletWrapper.show();
 
+    let slideWidth = '100%';
+    if (numberOfSlides === 3) {
+      slideWidth = '33.33%';
+    } else if (numberOfSlides === 2) {
+      slideWidth = '50%';
+    }
+
+    $($swiperContainer).find('.swiper-slide').css('width', slideWidth);
+
     const swiper = new Swiper($swiperContainer, {
       speed: sliderDuration,
-      loop: true,
-      autoplay: autoMode
-        ? {
-            delay: autoModeDelay,
-            pauseOnMouseEnter: pauseOnHover,
-          }
-        : false,
+      loop: !isLessThanRequired,
+      autoplay:
+        autoMode && !isLessThanRequired
+          ? {
+              delay: autoModeDelay,
+              pauseOnMouseEnter: pauseOnHover,
+            }
+          : false,
       autoHeight: false,
-      centeredSlides: true,
+      centeredSlides: !isLessThanRequired,
       followFinger: true,
       freeMode: false,
       slideToClickedSlide: false,
@@ -104,13 +114,15 @@ $(document).ready(function () {
           spaceBetween: spaceBetweenDesktop,
         },
       },
-      pagination: {
-        el: $(this).find('.swiper-bullet-wrapper')[0],
-        bulletActiveClass: 'is-active',
-        bulletClass: 'swiper-bullet',
-        bulletElement: 'button',
-        clickable: true,
-      },
+      pagination: !isLessThanRequired
+        ? {
+            el: $(this).find('.swiper-bullet-wrapper')[0],
+            bulletActiveClass: 'is-active',
+            bulletClass: 'swiper-bullet',
+            bulletElement: 'button',
+            clickable: true,
+          }
+        : false,
       navigation: {
         nextEl: $(this).find('.swiper-next')[0],
         prevEl: $(this).find('.swiper-prev')[0],
